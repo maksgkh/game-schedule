@@ -3,7 +3,15 @@ import { REGULAR_EVENTS } from "../schedule";
 
 const MSK_OFFSET = 3 * 60;
 
+// Глобальная переменная для режима разработчика (если null, используется реальное время)
+export let DEV_TIME_OVERRIDE: Date | null = null;
+
+export function setDevTime(date: Date | null) {
+  DEV_TIME_OVERRIDE = date;
+}
+
 export function getMoscowTime(): Date {
+  if (DEV_TIME_OVERRIDE) return new Date(DEV_TIME_OVERRIDE);
   const now = new Date();
   const utc = now.getTime() + now.getTimezoneOffset() * 60000;
   return new Date(utc + MSK_OFFSET * 60000);
@@ -17,22 +25,21 @@ export function parseTime(timeStr: string, baseDate: Date): Date {
 }
 
 export function formatTimeUntil(ms: number): string {
-  if (ms < 0) return "уже идёт";
+  if (ms < 0) return "сейчас";
   const minutes = Math.floor(ms / 60000);
   const hours = Math.floor(minutes / 60);
   if (hours > 0) {
     const mins = minutes % 60;
-    return mins > 0 ? `через ${hours} ч ${mins} мин` : `через ${hours} ч`;
+    return mins > 0 ? `${hours} ч ${mins} мин` : `${hours} ч`;
   }
-  if (minutes > 0) return `через ${minutes} мин`;
-  return "сейчас";
+  if (minutes > 0) return `${minutes} мин`;
+  return "менее мин";
 }
 
-// Получить список будущих обычных событий
 export function getUpcomingRegular(now: Date): UpcomingEvent[] {
   return REGULAR_EVENTS.map(event => {
     let next = parseTime(event.time, now);
-    if (next <= now) {
+    if (next.getTime() <= now.getTime()) {
       next = new Date(next);
       next.setDate(next.getDate() + 1);
     }
@@ -44,50 +51,33 @@ export function getUpcomingRegular(now: Date): UpcomingEvent[] {
   }).sort((a, b) => a.timeUntil - b.timeUntil);
 }
 
-// Проверить, активно ли особое событие СЕЙЧАС
-export function isSpecialActive(ev: SpecialEvent, now: Date): {
-  active: boolean;
-  highlighted: boolean;
-  subLabel?: string;
-} {
+export function isSpecialActive(ev: SpecialEvent, now: Date) {
   const today = now.getDay();
   const hm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  
+  let active = false;
+  let highlighted = false;
+  let activeSubName = "";
 
-  // Контрабанда — на 30-й минуте
-  if (ev.minuteMark !== undefined) {
-    const active = now.getMinutes() === ev.minuteMark;
-    return { active, highlighted: active };
-  }
-
-  // Капты — по дням + время
-  if (ev.days) {
-    const dayMatch = ev.days.includes(today);
-    const timeMatch = ev.timeRange
-      ? hm >= ev.timeRange.start && hm < ev.timeRange.end
-      : false;
-    return { active: dayMatch && timeMatch, highlighted: dayMatch && timeMatch };
-  }
-
-  // Остров/Форт — подсобытия по дням
-  if (ev.subEvents && ev.timeRange) {
-    const inTime = hm >= ev.timeRange.start && hm < ev.timeRange.end;
-    if (!inTime) return { active: false, highlighted: false };
-    for (const sub of ev.subEvents) {
-      if (sub.days.includes(today)) {
-        return { active: true, highlighted: true, subLabel: sub.name };
-      }
-    }
-    return { active: false, highlighted: false };
-  }
-
-  // Обычный диапазон
   if (ev.timeRange) {
-    const active = hm >= ev.timeRange.start && hm < ev.timeRange.end;
-    const highlighted = ev.highlightRange
-      ? hm >= ev.highlightRange.start && hm < ev.highlightRange.end
-      : active;
-    return { active, highlighted };
+    const inTime = hm >= ev.timeRange.start && hm < ev.timeRange.end;
+    const inHighlight = ev.highlightRange ? (hm >= ev.highlightRange.start && hm < ev.highlightRange.end) : false;
+    
+    if (ev.days) {
+      active = ev.days.includes(today) && inTime;
+      highlighted = active && inHighlight;
+    } else if (ev.subEvents) {
+      const todaySub = ev.subEvents.find(s => s.days.includes(today));
+      if (todaySub && inTime) {
+        active = true;
+        highlighted = inHighlight;
+        activeSubName = todaySub.name;
+      }
+    } else {
+      active = inTime;
+      highlighted = inHighlight;
+    }
   }
 
-  return { active: false, highlighted: false };
+  return { active, highlighted, activeSubName };
 }

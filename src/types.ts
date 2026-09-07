@@ -27,16 +27,16 @@ export interface UpcomingEvent {
 export interface NotificationConfig {
   enabled: boolean;
   minutesBeforeStart: number;
-  minutesBeforeEnd: number; // для событий с концом
+  minutesBeforeEnd: number;
   sound: "beep" | "chime" | "alert" | "none";
 }
 
 export interface Settings {
-  regular: NotificationConfig;   // Тайники, Дроп, Дилеры, Цеха
-  gov: NotificationConfig;       // Поставки гос.организаций
-  smuggle: NotificationConfig;   // Контрабанда
-  island: NotificationConfig;    // Остров/Форт
-  captures: NotificationConfig;  // Капты
+  regular: NotificationConfig;
+  gov: NotificationConfig;
+  smuggle: NotificationConfig;
+  island: NotificationConfig;
+  captures: NotificationConfig;
 }
 
 export type SettingsKey = keyof Settings;
