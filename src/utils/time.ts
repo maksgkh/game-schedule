@@ -1,5 +1,7 @@
-// МСК = UTC+3
-const MSK_OFFSET = 3 * 60; // в минутах
+import { RegularEvent, SpecialEvent, UpcomingEvent } from "../types";
+import { REGULAR_EVENTS } from "../schedule";
+
+const MSK_OFFSET = 3 * 60;
 
 export function getMoscowTime(): Date {
   const now = new Date();
@@ -16,83 +18,76 @@ export function parseTime(timeStr: string, baseDate: Date): Date {
 
 export function formatTimeUntil(ms: number): string {
   if (ms < 0) return "уже идёт";
-  
   const minutes = Math.floor(ms / 60000);
   const hours = Math.floor(minutes / 60);
-  
   if (hours > 0) {
     const mins = minutes % 60;
     return mins > 0 ? `через ${hours} ч ${mins} мин` : `через ${hours} ч`;
   }
-  
   if (minutes > 0) return `через ${minutes} мин`;
   return "сейчас";
 }
 
-export function isTimeInRange(time: Date, start: string, end: string): boolean {
-  const startTime = parseTime(start, time);
-  const endTime = parseTime(end, time);
-  return time >= startTime && time < endTime;
-}
-
-export function getNextOccurrence(
-  event: GameEvent,
-  now: Date
-): Date | null {
-  if (event.type === "fixed" && event.time) {
+// Получить список будущих обычных событий
+export function getUpcomingRegular(now: Date): UpcomingEvent[] {
+  return REGULAR_EVENTS.map(event => {
     let next = parseTime(event.time, now);
     if (next <= now) {
+      next = new Date(next);
       next.setDate(next.getDate() + 1);
     }
-    return next;
+    return {
+      event,
+      timeUntil: next.getTime() - now.getTime(),
+      displayTime: formatTimeUntil(next.getTime() - now.getTime()),
+    };
+  }).sort((a, b) => a.timeUntil - b.timeUntil);
+}
+
+// Проверить, активно ли особое событие СЕЙЧАС
+export function isSpecialActive(ev: SpecialEvent, now: Date): {
+  active: boolean;
+  highlighted: boolean;
+  subLabel?: string;
+} {
+  const today = now.getDay();
+  const hm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+  // Контрабанда — на 30-й минуте
+  if (ev.minuteMark !== undefined) {
+    const active = now.getMinutes() === ev.minuteMark;
+    return { active, highlighted: active };
   }
 
-  if (event.type === "interval" && event.interval) {
-    const nextMinutes = Math.ceil((now.getMinutes() + 1) / event.interval) * event.interval;
-    const next = new Date(now);
-    
-    if (nextMinutes >= 60) {
-      next.setHours(next.getHours() + 1, nextMinutes - 60, 0, 0);
-    } else {
-      next.setMinutes(nextMinutes, 0, 0);
-    }
-    
-    return next;
+  // Капты — по дням + время
+  if (ev.days) {
+    const dayMatch = ev.days.includes(today);
+    const timeMatch = ev.timeRange
+      ? hm >= ev.timeRange.start && hm < ev.timeRange.end
+      : false;
+    return { active: dayMatch && timeMatch, highlighted: dayMatch && timeMatch };
   }
 
-  if (event.type === "range" && event.range) {
-    if (isTimeInRange(now, event.range.start, event.range.end)) {
-      return now; // уже идёт
-    }
-    
-    const startTime = parseTime(event.range.start, now);
-    if (startTime > now) return startTime;
-    
-    // Завтра
-    startTime.setDate(startTime.getDate() + 1);
-    return startTime;
-  }
-
-  if (event.type === "weekly" && event.range && event.days) {
-    const today = now.getDay();
-    
-    // Проверяем, идёт ли сейчас
-    if (event.days.includes(today) && isTimeInRange(now, event.range.start, event.range.end)) {
-      return now;
-    }
-    
-    // Ищем ближайший день
-    for (let i = 0; i < 7; i++) {
-      const checkDate = new Date(now);
-      checkDate.setDate(checkDate.getDate() + i);
-      const checkDay = checkDate.getDay();
-      
-      if (event.days.includes(checkDay)) {
-        const startTime = parseTime(event.range.start, checkDate);
-        if (startTime > now) return startTime;
+  // Остров/Форт — подсобытия по дням
+  if (ev.subEvents && ev.timeRange) {
+    const inTime = hm >= ev.timeRange.start && hm < ev.timeRange.end;
+    if (!inTime) return { active: false, highlighted: false };
+    for (const sub of ev.subEvents) {
+      if (sub.days.includes(today)) {
+        return { active: true, highlighted: true, subLabel: sub.name };
       }
     }
+    return { active: false, highlighted: false };
   }
 
-  return null;
+  // Обычный диапазон
+  if (ev.timeRange) {
+    const active = hm >= ev.timeRange.start && hm < ev.timeRange.end;
+    const highlighted = ev.highlightRange
+      ? hm >= ev.highlightRange.start && hm < ev.highlightRange.end
+      : active;
+    return { active, highlighted };
+  }
+
+  return { active: false, highlighted: false };
 }
