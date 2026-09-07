@@ -4,9 +4,9 @@ import EventList from "./components/EventList";
 import SpecialEvents from "./components/SpecialEvents";
 import SettingsModal from "./components/SettingsModal";
 import Toast from "./components/Toast";
-import { Settings, RegularEvent, SpecialEvent } from "./types";
+import { Settings } from "./types";
 import { getMoscowTime, parseTime, isSpecialActive, setDevTime, DEV_TIME_OVERRIDE } from "./utils/time";
-import { loadSettings, saveSettings, DEFAULT_SETTINGS } from "./utils/settings";
+import { loadSettings, saveSettings } from "./utils/settings";
 import { playSound } from "./utils/sounds";
 import { REGULAR_EVENTS, SPECIAL_EVENTS } from "./schedule";
 
@@ -16,7 +16,6 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [isOverlayMode, setIsOverlayMode] = useState(false);
   const [toast, setToast] = useState<{ title: string; message: string } | null>(null);
-  
   const sentRef = useRef<Set<string>>(new Set());
 
   // Обновление времени
@@ -39,13 +38,15 @@ export default function App() {
     const check = async () => {
       const now = getMoscowTime();
       const nowMs = now.getTime();
+      const today = now.getDay();
+
+      // 1. Обычные события
       const upcoming = REGULAR_EVENTS.map(ev => {
         let t = parseTime(ev.time, now);
         if (t.getTime() <= nowMs) { t = new Date(t); t.setDate(t.getDate() + 1); }
         return { ev, diff: t.getTime() - nowMs, target: t };
       }).sort((a, b) => a.diff - b.diff);
 
-      // 1. Обычные события
       for (const { ev, diff, target } of upcoming) {
         const cfg = settings[ev.category];
         if (!cfg?.enabled) continue;
@@ -64,16 +65,13 @@ export default function App() {
         const cfg = settings[ev.id];
         if (!cfg?.enabled) return;
         const state = isSpecialActive(ev, now);
-        const today = now.getDay();
         let dayOk = true;
         if (ev.days && !ev.days.includes(today)) dayOk = false;
         if (ev.subEvents && !ev.subEvents.some(s => s.days.includes(today))) dayOk = false;
-
         if (ev.timeRange && dayOk) {
           const startT = parseTime(ev.timeRange.start, now);
-          let sTarget = startT.getTime() <= nowMs ? (new Date(startT), new Date(startT.getTime() + 86400000)) : startT;
+          let sTarget = startT.getTime() <= nowMs ? new Date(startT.getTime() + 86400000) : startT;
           const diffStart = sTarget.getTime() - nowMs;
-          
           if (diffStart > 0 && diffStart <= cfg.minutesBeforeStart * 60 * 1000) {
             const key = `sp_start_${ev.id}_${sTarget.toISOString().slice(0, 10)}`;
             if (!sentRef.current.has(key)) {
@@ -82,7 +80,6 @@ export default function App() {
               triggerAlert(`${ev.name}${subText}`, `Начало через ${Math.round(diffStart / 60000)} мин`, cfg);
             }
           }
-
           if (cfg.minutesBeforeEnd > 0) {
             const endT = parseTime(ev.timeRange.end, now);
             const diffEnd = endT.getTime() - nowMs;
@@ -97,7 +94,6 @@ export default function App() {
         }
       });
     };
-
     check();
     const id = setInterval(check, 10000);
     return () => clearInterval(id);
@@ -107,8 +103,8 @@ export default function App() {
     setToast({ title, message: body });
     playSound(cfg.sound, (cfg as any).customSoundData);
     import("@tauri-apps/plugin-notification").then(({ sendNotification }) => {
-      sendNotification({ title: "Расписание", body: `${title} - ${body}` }).catch(() => {});
-    });
+      sendNotification({ title: "Расписание", body: `${title} - ${body}` });
+    }).catch(err => console.error("Ошибка загрузки плагина уведомлений:", err));
   }
 
   // Управление режимом оверлея
@@ -117,7 +113,6 @@ export default function App() {
     if (!isOverlayMode) {
       await win.setAlwaysOnTop(true);
       await win.setDecorations(false);
-      // Для прозрачности в Tauri v2 окно должно быть создано с transparent: true в tauri.conf.json
       setIsOverlayMode(true);
     } else {
       await win.setAlwaysOnTop(false);
@@ -144,15 +139,12 @@ export default function App() {
 
   return (
     <div className={`app ${isOverlayMode ? "overlay-mode" : ""}`} style={{ opacity: overlayOpacity }}>
-      {/* Кнопка выхода из оверлея (видна при наведении) */}
       {isOverlayMode && (
         <button className="exit-overlay-btn" onClick={toggleOverlay} title="Выйти из режима оверлея">✕</button>
       )}
 
       <div className="topbar">
         <h1>🎮 Расписание</h1>
-        
-        {/* Фиксированный правый блок: Часы + Шестеренка */}
         <div className="topbar-right">
           {DEV_TIME_OVERRIDE && <span className="dev-badge">DEV MODE</span>}
           <div className="clock">
@@ -163,10 +155,9 @@ export default function App() {
           <button className={`icon-btn ${isOverlayMode ? "active" : ""}`} onClick={toggleOverlay} title="Режим оверлея (поверх игры)">
             {isOverlayMode ? "🖥️" : "👁️"}
           </button>
-       9>
+        </div>
       </div>
 
-      {/* Режим разработчика: выбор времени */}
       <div className="dev-controls">
         <label>Тест времени: </label>
         <input 

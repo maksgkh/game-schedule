@@ -8,22 +8,20 @@ interface Props {
   onClose: () => void;
 }
 
-// Конфигурация секций: какие из них имеют "время окончания" для отдельной настройки
 const SECTIONS: { key: SettingsKey; title: string; hasEnd: boolean }[] = [
   { key: "drop", title: "📦 Дроп / Тайники", hasEnd: false },
   { key: "workshop", title: "🏭 Цеха", hasEnd: false },
   { key: "dealer", title: "👤 Дилеры", hasEnd: false },
-  { key: "contraband", title: "💨 Контрабанда", hasEnd: false },
+  { key: "contraband", title: " Контрабанда", hasEnd: false },
   { key: "gov", title: "🏛️ Поставки гос.организаций", hasEnd: true },
   { key: "island", title: "🏝️ Нападение на Остров / Форт", hasEnd: true },
   { key: "captures", title: "🎯 Капты", hasEnd: true },
 ];
 
 export default function SettingsModal({ settings, onSave, onClose }: Props) {
-  // Локальное состояние для редактирования перед сохранением
   const [local, setLocal] = useState<Settings>(settings);
 
-  function updateSection(key: SettingsKey, cfg: NotificationConfig) {
+  function updateSection(key: SettingsKey, cfg: any) {
     setLocal({ ...local, [key]: cfg });
   }
 
@@ -36,15 +34,14 @@ export default function SettingsModal({ settings, onSave, onClose }: Props) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal wide" onClick={(e) => e.stopPropagation()}>
         <h2>⚙️ Настройки уведомлений</h2>
-        <p className="modal-hint">Настрой время и звук для каждого типа событий отдельно</p>
+        <p className="modal-hint">Настрой время, звук и оверлей для каждого типа событий</p>
 
         <div className="settings-list">
           {SECTIONS.map((sec) => {
             const cfg = local[sec.key];
-            
+            if (!cfg) return null;
             return (
               <div key={sec.key} className="notify-row">
-                {/* Заголовок секции: чекбокс и кнопка теста */}
                 <div className="nr-head">
                   <label className="nr-toggle">
                     <input
@@ -63,8 +60,6 @@ export default function SettingsModal({ settings, onSave, onClose }: Props) {
                     🔊 Тест
                   </button>
                 </div>
-
-                {/* Тело секции: поля ввода (показываем только если включено) */}
                 {cfg.enabled && (
                   <div className="nr-body">
                     <div className="nr-field">
@@ -79,7 +74,6 @@ export default function SettingsModal({ settings, onSave, onClose }: Props) {
                         }
                       />
                     </div>
-
                     {sec.hasEnd && (
                       <div className="nr-field">
                         <label>До конца (мин)</label>
@@ -94,13 +88,12 @@ export default function SettingsModal({ settings, onSave, onClose }: Props) {
                         />
                       </div>
                     )}
-
                     <div className="nr-field">
                       <label>Звук</label>
                       <select
                         value={cfg.sound}
                         onChange={(e) =>
-                          updateSection(sec.key, { ...cfg, sound: e.target.value as NotificationConfig["sound"] })
+                          updateSection(sec.key, { ...cfg, sound: e.target.value as any })
                         }
                       >
                         {SOUND_OPTIONS.map((opt) => (
@@ -110,8 +103,18 @@ export default function SettingsModal({ settings, onSave, onClose }: Props) {
                         ))}
                       </select>
                     </div>
-
-                    {/* Специальный блок для загрузки своего файла */}
+                    <div className="nr-field">
+                      <label>Оверлей (мин)</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={60}
+                        value={cfg.minutesBeforeShow || 5}
+                        onChange={(e) =>
+                          updateSection(sec.key, { ...cfg, minutesBeforeShow: Number(e.target.value) })
+                        }
+                      />
+                    </div>
                     {cfg.sound === "custom" && (
                       <div className="nr-field" style={{ gridColumn: "1 / -1" }}>
                         <label>Загрузить свой звук (MP3/WAV, макс. 2 МБ)</label>
@@ -123,7 +126,6 @@ export default function SettingsModal({ settings, onSave, onClose }: Props) {
                             if (file) {
                               const reader = new FileReader();
                               reader.onloadend = () => {
-                                // Сохраняем файл как Base64 строку прямо в настройки
                                 updateSection(sec.key, { ...cfg, customSoundData: reader.result as string });
                               };
                               reader.readAsDataURL(file);
@@ -148,7 +150,6 @@ export default function SettingsModal({ settings, onSave, onClose }: Props) {
           })}
         </div>
 
-        {/* Кнопки действий */}
         <div className="modal-actions">
           <button className="btn" onClick={onClose}>Отмена</button>
           <button className="btn primary" onClick={save}>Сохранить</button>

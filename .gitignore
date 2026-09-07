@@ -1,30 +1,30 @@
-# Logs
-logs
-*.log
+# Зависимости Node.js
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Файлы сборки Vite / React
+dist/
+dist-ssr/
 *.local
-node_modules
-dist
-src-tauri/target
-src-tauri/gen
-.DS_Store
-*.log
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Файлы сборки Tauri (Rust)
+src-tauri/target/
+src-tairi/gen/
+
+# Переменные окружения
+.env
+.env.local
+.env.*.local
+
+# Системные файлы
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/

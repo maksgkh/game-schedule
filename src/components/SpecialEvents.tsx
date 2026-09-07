@@ -5,26 +5,8 @@ import { getMoscowTime, isSpecialActive } from "../utils/time";
 
 const DAY_NAMES = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
 
-// Сколько секунд до следующей контрабанды
-function getSmuggleCountdown(now: Date): string {
-  const currentMin = now.getMinutes();
-  const targetMin = 30;
-  let diffMin = targetMin - currentMin;
-  if (diffMin <= 0) diffMin += 60;
-  const diffSec = 59 - now.getSeconds();
-  const totalSec = (diffMin - 1) * 60 + diffSec;
-  const m = Math.floor(totalSec / 60);
-  const s = totalSec % 60;
-  return `${m} мин ${String(s).padStart(2, "0")} сек`;
-}
-
 export default function SpecialEvents() {
-  const [states, setStates] = useState<Record<string, {
-    active: boolean;
-    highlighted: boolean;
-    subLabel?: string;
-  }>>({});
-  const [smuggleTimer, setSmuggleTimer] = useState("");
+  const [states, setStates] = useState<Record<string, { active: boolean; highlighted: boolean; activeSubName?: string }>>({});
 
   useEffect(() => {
     const update = () => {
@@ -34,7 +16,6 @@ export default function SpecialEvents() {
         newStates[ev.id] = isSpecialActive(ev, now);
       });
       setStates(newStates);
-      setSmuggleTimer(getSmuggleCountdown(now));
     };
     update();
     const id = setInterval(update, 1000);
@@ -56,17 +37,11 @@ export default function SpecialEvents() {
               {state.highlighted && <span className="sp-badge">АКТИВНО</span>}
             </div>
             <div className="sp-desc">{ev.description}</div>
-
-            {/* Таймер контрабанды */}
-            {ev.id === "smuggle" && (
-              <div className="smuggle-timer">⏱ До следующей: {smuggleTimer}</div>
-            )}
-
-            {state.subLabel && <div className="sp-sub">Сегодня: {state.subLabel}</div>}
+            
+            {state.activeSubName && <div className="sp-sub">Сегодня: {state.activeSubName}</div>}
+            
             {ev.days && (
-              <div className="sp-days">
-                Дни: {ev.days.map(d => DAY_NAMES[d]).join(", ")}
-              </div>
+              <div className="sp-days">Дни: {ev.days.map(d => DAY_NAMES[d]).join(", ")}</div>
             )}
             {ev.subEvents && (
               <div className="sp-days">

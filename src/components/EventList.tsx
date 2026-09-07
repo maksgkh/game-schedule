@@ -20,7 +20,7 @@ export default function EventList() {
           className={`event-item ${idx === 0 ? "next-event" : ""}`}
           style={{ borderLeftColor: event.color }}
         >
-          <div>
+          <div className="event-info">
             <span className="name">{event.name}</span>
             <span className="time">{event.time}</span>
           </div>

@@ -3,17 +3,23 @@ export interface NotificationConfig {
   minutesBeforeStart: number;
   minutesBeforeEnd: number;
   sound: "soft_chime" | "gentle_bell" | "warm_ping" | "custom";
-  customSoundData?: string; // Base64 строка для кастомного звука
+  customSoundData?: string;
+}
+
+export interface OverlayConfig {
+  enabled: boolean;
+  showInOverlay: boolean;
+  minutesBeforeShow: number;
 }
 
 export interface Settings {
-  drop: NotificationConfig;
-  workshop: NotificationConfig; // Цеха
-  dealer: NotificationConfig;   // Дилеры
-  contraband: NotificationConfig; // Контрабанда (теперь тут)
-  gov: NotificationConfig;      // Поставки
-  island: NotificationConfig;   // Остров/Форт
-  captures: NotificationConfig; // Капты
+  drop: NotificationConfig & OverlayConfig;
+  workshop: NotificationConfig & OverlayConfig;
+  dealer: NotificationConfig & OverlayConfig;
+  contraband: NotificationConfig & OverlayConfig;
+  gov: NotificationConfig & OverlayConfig;
+  island: NotificationConfig & OverlayConfig;
+  captures: NotificationConfig & OverlayConfig;
 }
 
 export type SettingsKey = keyof Settings;

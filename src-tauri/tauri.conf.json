@@ -11,19 +11,18 @@
   },
   "app": {
     "windows": [
-  {
-    "label": "main",
-    "title": "Игровое Расписание",
-    "width": 380,
-    "height": 650,
-    "resizable": true,
-    "center": true,
-    "decorations": true,
-    "transparent": true,
-    "shadow": true
-  }
-]
-]
+      {
+        "label": "main",
+        "title": "Игровое Расписание",
+        "width": 380,
+        "height": 650,
+        "resizable": true,
+        "center": true,
+        "decorations": true,
+        "transparent": true,
+        "shadow": true
+      }
+    ]
   },
   "bundle": {
     "active": true,
