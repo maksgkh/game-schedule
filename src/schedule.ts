@@ -1,41 +1,51 @@
 import { RegularEvent, SpecialEvent } from "./types";
 
-// Обычные события — просто список по времени
-export const REGULAR_EVENTS: RegularEvent[] = [
-  { id: "d1", name: "Дроп", time: "00:00", color: "#7c5cfc" },
-  { id: "t1", name: "Тайники", time: "02:00", color: "#4a90e2" },
-  { id: "d2", name: "Дроп", time: "04:00", color: "#7c5cfc" },
-  { id: "t2", name: "Тайники", time: "06:00", color: "#4a90e2" },
-  { id: "d3", name: "Дроп", time: "08:00", color: "#7c5cfc" },
-  { id: "t3", name: "Тайники", time: "10:00", color: "#4a90e2" },
-  { id: "dl1", name: "Дилеры", time: "10:45", color: "#e04060" },
-  { id: "d4", name: "Дроп", time: "12:00", color: "#7c5cfc" },
-  { id: "t4", name: "Тайники", time: "14:00", color: "#4a90e2" },
-  { id: "c1", name: "Цеха", time: "14:45", color: "#f5a623" },
-  { id: "d5", name: "Дроп", time: "16:00", color: "#7c5cfc" },
-  { id: "t5", name: "Тайники", time: "18:00", color: "#4a90e2" },
-  { id: "dl2", name: "Дилеры", time: "18:45", color: "#e04060" },
-  { id: "d6", name: "Дроп", time: "20:00", color: "#7c5cfc" },
-  { id: "t6", name: "Тайники", time: "22:00", color: "#4a90e2" },
-  { id: "c2", name: "Цеха", time: "22:45", color: "#f5a623" },
-];
+// Генерируем контрабанду на ближайшие 24 часа
+function generateContraband(): RegularEvent[] {
+  const events: RegularEvent[] = [];
+  const now = new Date();
+  for (let i = 0; i < 24; i++) {
+    const h = (now.getHours() + i) % 24;
+    const timeStr = `${String(h).padStart(2, "0")}:30`;
+    events.push({
+      id: `contraband_${i}`,
+      name: "Контрабанда",
+      time: timeStr,
+      color: "#ff6b6b",
+      category: "contraband",
+    });
+  }
+  return events;
+}
 
-// Особые события — с условиями подсветки
+export const REGULAR_EVENTS: RegularEvent[] = [
+  { id: "d1", name: "Дроп", time: "00:00", color: "#7c5cfc", category: "drop" },
+  { id: "t1", name: "Тайники", time: "02:00", color: "#4a90e2", category: "drop" }, // Тайники считаем как дроп-категорию для простоты, или можно выделить
+  { id: "d2", name: "Дроп", time: "04:00", color: "#7c5cfc", category: "drop" },
+  { id: "t2", name: "Тайники", time: "06:00", color: "#4a90e2", category: "drop" },
+  { id: "d3", name: "Дроп", time: "08:00", color: "#7c5cfc", category: "drop" },
+  { id: "t3", name: "Тайники", time: "10:00", color: "#4a90e2", category: "drop" },
+  { id: "dl1", name: "Дилеры", time: "10:45", color: "#e04060", category: "dealer" },
+  { id: "d4", name: "Дроп", time: "12:00", color: "#7c5cfc", category: "drop" },
+  { id: "t4", name: "Тайники", time: "14:00", color: "#4a90e2", category: "drop" },
+  { id: "c1", name: "Цеха", time: "14:45", color: "#f5a623", category: "workshop" },
+  { id: "d5", name: "Дроп", time: "16:00", color: "#7c5cfc", category: "drop" },
+  { id: "t5", name: "Тайники", time: "18:00", color: "#4a90e2", category: "drop" },
+  { id: "dl2", name: "Дилеры", time: "18:45", color: "#e04060", category: "dealer" },
+  { id: "d6", name: "Дроп", time: "20:00", color: "#7c5cfc", category: "drop" },
+  { id: "t6", name: "Тайники", time: "22:00", color: "#4a90e2", category: "drop" },
+  { id: "c2", name: "Цеха", time: "22:45", color: "#f5a623", category: "workshop" },
+  ...generateContraband(),
+].sort((a, b) => a.time.localeCompare(b.time));
+
 export const SPECIAL_EVENTS: SpecialEvent[] = [
   {
     id: "gov",
     name: "Поставки гос.организаций",
-    description: "Поставка материалов 15:00–22:30",
+    description: "Поставка 15:00–22:30 | Безопасный час 15:00–16:00",
     color: "#50c878",
     timeRange: { start: "15:00", end: "22:30" },
-    highlightRange: { start: "15:00", end: "16:00" }, // безопасный час
-  },
-  {
-    id: "smuggle",
-    name: "Контрабанда",
-    description: "На 30-й минуте каждого часа",
-    color: "#ff6b6b",
-    minuteMark: 30,
+    highlightRange: { start: "15:00", end: "16:00" },
   },
   {
     id: "island",

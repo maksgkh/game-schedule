@@ -1,20 +1,40 @@
+export interface NotificationConfig {
+  enabled: boolean;
+  minutesBeforeStart: number;
+  minutesBeforeEnd: number;
+  sound: "soft_chime" | "gentle_bell" | "warm_ping" | "custom";
+  customSoundData?: string; // Base64 строка для кастомного звука
+}
+
+export interface Settings {
+  drop: NotificationConfig;
+  workshop: NotificationConfig; // Цеха
+  dealer: NotificationConfig;   // Дилеры
+  contraband: NotificationConfig; // Контрабанда (теперь тут)
+  gov: NotificationConfig;      // Поставки
+  island: NotificationConfig;   // Остров/Форт
+  captures: NotificationConfig; // Капты
+}
+
+export type SettingsKey = keyof Settings;
+
 export interface RegularEvent {
   id: string;
   name: string;
   time: string;
   color: string;
+  category: "drop" | "workshop" | "dealer" | "contraband";
 }
 
 export interface SpecialEvent {
-  id: string;
+  id: "gov" | "island" | "captures";
   name: string;
   description: string;
   color: string;
   timeRange?: { start: string; end: string };
   days?: number[];
-  minuteMark?: number;
-  highlightRange?: { start: string; end: string };
   subEvents?: { name: string; days: number[] }[];
+  highlightRange?: { start: string; end: string };
 }
 
 export interface UpcomingEvent {
@@ -22,21 +42,3 @@ export interface UpcomingEvent {
   timeUntil: number;
   displayTime: string;
 }
-
-// Настройки уведомлений для одного типа
-export interface NotificationConfig {
-  enabled: boolean;
-  minutesBeforeStart: number;
-  minutesBeforeEnd: number;
-  sound: "beep" | "chime" | "alert" | "none";
-}
-
-export interface Settings {
-  regular: NotificationConfig;
-  gov: NotificationConfig;
-  smuggle: NotificationConfig;
-  island: NotificationConfig;
-  captures: NotificationConfig;
-}
-
-export type SettingsKey = keyof Settings;
