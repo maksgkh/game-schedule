@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Settings, SettingsKey, NotificationConfig } from "../types";
 import { playSound, SOUND_OPTIONS } from "../utils/sounds";
+import { setDevTime } from "../utils/time";
 
 interface Props {
   settings: Settings;
@@ -12,7 +13,7 @@ const SECTIONS: { key: SettingsKey; title: string; hasEnd: boolean }[] = [
   { key: "drop", title: "📦 Дроп / Тайники", hasEnd: false },
   { key: "workshop", title: "🏭 Цеха", hasEnd: false },
   { key: "dealer", title: "👤 Дилеры", hasEnd: false },
-  { key: "contraband", title: " Контрабанда", hasEnd: false },
+  { key: "contraband", title: "🚢 Контрабанда", hasEnd: false },
   { key: "gov", title: "🏛️ Поставки гос.организаций", hasEnd: true },
   { key: "island", title: "🏝️ Нападение на Остров / Форт", hasEnd: true },
   { key: "captures", title: "🎯 Капты", hasEnd: true },
@@ -20,6 +21,7 @@ const SECTIONS: { key: SettingsKey; title: string; hasEnd: boolean }[] = [
 
 export default function SettingsModal({ settings, onSave, onClose }: Props) {
   const [local, setLocal] = useState<Settings>(settings);
+  const [testTime, setTestTime] = useState<string>("");
 
   function updateSection(key: SettingsKey, cfg: any) {
     setLocal({ ...local, [key]: cfg });
@@ -29,6 +31,16 @@ export default function SettingsModal({ settings, onSave, onClose }: Props) {
     onSave(local);
     onClose();
   }
+
+  const handleTimeChange = (val: string) => {
+    setTestTime(val);
+    setDevTime(val ? new Date(val) : null);
+  };
+
+  const resetTime = () => {
+    setTestTime("");
+    setDevTime(null);
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -148,6 +160,28 @@ export default function SettingsModal({ settings, onSave, onClose }: Props) {
               </div>
             );
           })}
+
+          <div className="notify-row" style={{ marginTop: 16, borderColor: "#444", background: "#0f0f0f" }}>
+            <div className="nr-head">
+              <span className="nr-title" style={{ color: "#888" }}>🛠️ Тест времени (симуляция)</span>
+              <button
+                className="btn small"
+                onClick={resetTime}
+              >
+                Сброс
+              </button>
+            </div>
+            <div className="nr-body" style={{ paddingTop: "12px", marginTop: "12px" }}>
+              <div className="nr-field" style={{ gridColumn: "1 / -1" }}>
+                <label>Установить время</label>
+                <input
+                  type="datetime-local"
+                  value={testTime}
+                  onChange={(e) => handleTimeChange(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="modal-actions">

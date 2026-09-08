@@ -1,4 +1,4 @@
-/* ===== КИБЕРПАНК ЧЕРНО-КРАСНАЯ ТЕМА ===== */
+/* ===== ЧЕРНАЯ ТЕМА С АКЦЕНТАМИ ===== */
 
 * {
   margin: 0;
@@ -6,11 +6,14 @@
   box-sizing: border-box;
 }
 
-body {
+html, body {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background: #0a0a0a;
+  background: transparent; /* Делаем фон прозрачным для pass-through кликов */
   color: #ffffff;
   overflow: hidden;
+  margin: 0;
+  padding: 0;
+  height: 100%;
 }
 
 .app {
@@ -18,7 +21,7 @@ body {
   display: flex;
   flex-direction: column;
   padding: 12px 16px;
-  background: linear-gradient(180deg, #0a0a0a 0%, #1a0a0a 100%);
+  background: #000000;
   transition: opacity 0.4s ease;
 }
 
@@ -28,16 +31,15 @@ body {
   justify-content: space-between;
   align-items: center;
   padding-bottom: 12px;
-  border-bottom: 2px solid #ff0000;
+  border-bottom: 1px solid #222;
   margin-bottom: 12px;
   flex-shrink: 0;
 }
 
 .topbar h1 {
   font-size: 1rem;
-  color: #ff3333;
+  color: #ffffff;
   font-weight: 700;
-  text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
 }
 
 .topbar-right {
@@ -65,8 +67,7 @@ body {
 .clock .time {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #ff3333;
-  text-shadow: 0 0 8px rgba(255, 51, 51, 0.6);
+  color: #ffffff;
 }
 
 .clock .date {
@@ -75,9 +76,9 @@ body {
 }
 
 .icon-btn {
-  background: rgba(255, 0, 0, 0.1);
-  border: 1px solid rgba(255, 0, 0, 0.3);
-  color: #ff3333;
+  background: #111;
+  border: 1px solid #333;
+  color: #ccc;
   font-size: 1.1rem;
   cursor: pointer;
   padding: 6px 10px;
@@ -86,49 +87,23 @@ body {
 }
 
 .icon-btn:hover {
-  background: rgba(255, 0, 0, 0.3);
-  border-color: #ff0000;
-  box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+  background: #1a1a1a;
+  border-color: #555;
+  color: #fff;
 }
 
 .icon-btn.active {
-  background: rgba(255, 0, 0, 0.5);
+  background: #ff0000;
   border-color: #ff0000;
-  box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
-}
-
-/* ===== РЕЖИМ РАЗРАБОТЧИКА ===== */
-.dev-controls {
-  background: rgba(26, 10, 10, 0.8);
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.8rem;
-  border: 1px solid rgba(255, 0, 0, 0.2);
-}
-
-.dev-controls label {
-  color: #ff6666;
-  font-weight: 600;
-}
-
-.dev-controls input {
-  background: #0a0a0a;
-  border: 1px solid rgba(255, 0, 0, 0.3);
   color: #fff;
-  padding: 6px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
 }
 
 /* ===== СЕКЦИИ ===== */
 .section-title {
   font-size: 0.75rem;
   text-transform: uppercase;
-  color: #ff3333;
+  color: #888;
   letter-spacing: 2px;
   margin: 12px 0 8px;
   font-weight: 700;
@@ -148,15 +123,18 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 10px 12px;
-  background: rgba(26, 10, 10, 0.6);
+  background: #0a0a0a;
   border-radius: 8px;
   border-left: 3px solid;
   font-size: 0.9rem;
   transition: all 0.3s;
+  border-top: 1px solid #111;
+  border-right: 1px solid #111;
+  border-bottom: 1px solid #111;
 }
 
 .event-item:hover {
-  background: rgba(26, 10, 10, 0.9);
+  background: #151515;
   transform: translateX(4px);
 }
 
@@ -173,21 +151,21 @@ body {
 
 .event-item .countdown {
   font-size: 0.8rem;
-  color: #ff3333;
+  color: #ccc;
   font-weight: 700;
   white-space: nowrap;
-  background: rgba(255, 0, 0, 0.1);
+  background: #111;
   padding: 4px 10px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 0, 0, 0.3);
+  border: 1px solid #333;
 }
 
 /* Выделение ближайшего события */
 .event-item.next-event {
-  background: linear-gradient(90deg, rgba(255, 0, 0, 0.3), rgba(26, 10, 10, 0.8));
+  background: #1a0505;
   border-left-width: 5px;
   border-left-color: #ff0000 !important;
-  box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -197,8 +175,9 @@ body {
 }
 
 .event-item.next-event .countdown {
-  background: rgba(255, 0, 0, 0.3);
+  background: rgba(255, 0, 0, 0.2);
   border-color: #ff0000;
+  color: #ff3333;
   box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
 }
 
@@ -217,21 +196,24 @@ body {
 
 .special-item {
   padding: 12px;
-  background: rgba(26, 10, 10, 0.7);
+  background: #0a0a0a;
   border-radius: 8px;
   border-left: 4px solid;
   transition: all 0.3s;
+  border-top: 1px solid #111;
+  border-right: 1px solid #111;
+  border-bottom: 1px solid #111;
 }
 
 .special-item.active {
-  background: rgba(255, 0, 0, 0.15);
-  box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+  background: #1a0505;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);
 }
 
 .special-item.highlighted {
-  background: linear-gradient(90deg, rgba(255, 0, 0, 0.25), rgba(26, 10, 10, 0.7));
+  background: #1a0505;
   border-left-color: #ff0000 !important;
-  box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
 }
 
 .special-item .sp-name {
@@ -263,11 +245,11 @@ body {
 
 .special-item .sp-sub {
   font-size: 0.8rem;
-  color: #ff6666;
+  color: #ccc;
   font-weight: 600;
   margin-top: 6px;
   padding: 4px 8px;
-  background: rgba(255, 102, 102, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
   display: inline-block;
 }
@@ -291,15 +273,15 @@ body {
 }
 
 .modal {
-  background: #1a0a0a;
-  border: 2px solid #ff0000;
+  background: #050505;
+  border: 1px solid #333;
   border-radius: 12px;
   padding: 24px;
   width: 360px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 0 40px rgba(255, 0, 0, 0.3);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
 }
 
 .modal.wide {
@@ -309,7 +291,7 @@ body {
 .modal h2 {
   font-size: 1.1rem;
   margin-bottom: 8px;
-  color: #ff3333;
+  color: #fff;
   font-weight: 700;
 }
 
@@ -328,11 +310,12 @@ body {
 
 .modal input[type="number"],
 .modal input[type="text"],
-.modal select {
+.modal select,
+.modal input[type="datetime-local"] {
   width: 100%;
   padding: 8px 12px;
-  background: #0a0a0a;
-  border: 1px solid rgba(255, 0, 0, 0.3);
+  background: #000;
+  border: 1px solid #333;
   border-radius: 6px;
   color: #fff;
   font-size: 0.9rem;
@@ -343,7 +326,7 @@ body {
 .modal select:focus {
   outline: none;
   border-color: #ff0000;
-  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
 }
 
 .modal-actions {
@@ -360,28 +343,28 @@ body {
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
-  background: rgba(255, 0, 0, 0.2);
+  background: #111;
   color: #fff;
-  border: 1px solid rgba(255, 0, 0, 0.4);
+  border: 1px solid #333;
   transition: all 0.3s;
   font-weight: 600;
 }
 
 .btn:hover {
-  background: rgba(255, 0, 0, 0.4);
-  border-color: #ff0000;
-  box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+  background: #222;
+  border-color: #555;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
 }
 
 .btn.primary {
   background: #ff0000;
   border-color: #ff0000;
-  box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
 }
 
 .btn.primary:hover {
   background: #ff3333;
-  box-shadow: 0 0 20px rgba(255, 51, 51, 0.6);
+  box-shadow: 0 0 20px rgba(255, 51, 51, 0.5);
 }
 
 .btn.small {
@@ -405,16 +388,16 @@ body {
 }
 
 .notify-row {
-  background: rgba(26, 10, 10, 0.7);
+  background: #0a0a0a;
   border-radius: 8px;
   padding: 12px;
-  border: 1px solid rgba(255, 0, 0, 0.2);
+  border: 1px solid #222;
   transition: all 0.3s;
 }
 
 .notify-row:hover {
-  border-color: rgba(255, 0, 0, 0.4);
-  box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);
+  border-color: #444;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.02);
 }
 
 .nr-head {
@@ -451,7 +434,7 @@ body {
   gap: 10px;
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid rgba(255, 0, 0, 0.2);
+  border-top: 1px solid #222;
 }
 
 .nr-field {
@@ -469,8 +452,8 @@ body {
 .nr-field input,
 .nr-field select {
   padding: 6px 10px;
-  background: #0a0a0a;
-  border: 1px solid rgba(255, 0, 0, 0.3);
+  background: #000;
+  border: 1px solid #333;
   border-radius: 6px;
   color: #fff;
   font-size: 0.85rem;
@@ -480,7 +463,7 @@ body {
 .nr-field select:focus {
   outline: none;
   border-color: #ff0000;
-  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
 }
 
 .nr-field input[type="number"] {
@@ -494,9 +477,9 @@ body {
 }
 
 .nr-field input[type="file"]::file-selector-button {
-  background: rgba(255, 0, 0, 0.3);
+  background: #222;
   color: white;
-  border: 1px solid rgba(255, 0, 0, 0.5);
+  border: 1px solid #444;
   padding: 4px 10px;
   border-radius: 4px;
   cursor: pointer;
@@ -506,19 +489,55 @@ body {
 }
 
 .nr-field input[type="file"]::file-selector-button:hover {
-  background: rgba(255, 0, 0, 0.5);
+  background: #333;
 }
 
 /* ===== РЕЖИМ ОВЕРЛЕЯ ===== */
-.app.overlay-mode {
+.app.overlay-widget {
   background: transparent !important;
+  padding: 0 !important;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none !important; /* Позволяет кликать сквозь прозрачные области на игру */
+}
+
+.overlay-event, .exit-overlay-btn {
+  pointer-events: auto !important; /* Возвращает возможность взаимодействовать с самим виджетом */
+}
+
+.overlay-event {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  background: rgba(5, 5, 5, 0.85);
+  border-left: 6px solid;
+  backdrop-filter: blur(10px);
+}
+
+.overlay-event-name {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.overlay-event-countdown {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #ff3333;
+  text-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
 }
 
 .exit-overlay-btn {
   position: fixed;
-  top: 10px;
-  right: 10px;
-  background: rgba(255, 0, 0, 0.9);
+  top: -15px;
+  right: -15px;
+  background: #ff0000;
   color: white;
   border: none;
   width: 32px;
@@ -535,7 +554,7 @@ body {
   box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
 }
 
-.app.overlay-mode:hover .exit-overlay-btn {
+.app.overlay-widget:hover .exit-overlay-btn {
   opacity: 1;
 }
 
@@ -549,7 +568,7 @@ body {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: rgba(26, 10, 10, 0.95);
+  background: rgba(5, 5, 5, 0.95);
   backdrop-filter: blur(10px);
   border: 2px solid #ff0000;
   border-radius: 12px;
@@ -612,17 +631,17 @@ body {
 
 .event-list::-webkit-scrollbar-thumb,
 .settings-list::-webkit-scrollbar-thumb {
-  background: rgba(255, 0, 0, 0.4);
+  background: #333;
   border-radius: 3px;
 }
 
 .event-list::-webkit-scrollbar-thumb:hover,
 .settings-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 0, 0, 0.6);
+  background: #555;
 }
 
 .event-list::-webkit-scrollbar-track,
 .settings-list::-webkit-scrollbar-track {
-  background: rgba(10, 10, 10, 0.5);
+  background: #0a0a0a;
   border-radius: 3px;
 }

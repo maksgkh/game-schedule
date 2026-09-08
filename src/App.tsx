@@ -1,14 +1,51 @@
 import { useState, useEffect, useRef } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { LogicalSize } from "@tauri-apps/api/dpi";
 import EventList from "./components/EventList";
 import SpecialEvents from "./components/SpecialEvents";
 import SettingsModal from "./components/SettingsModal";
 import Toast from "./components/Toast";
 import { Settings } from "./types";
-import { getMoscowTime, parseTime, isSpecialActive, setDevTime, DEV_TIME_OVERRIDE } from "./utils/time";
+import { getMoscowTime, parseTime, isSpecialActive, formatTimeUntil } from "./utils/time";
 import { loadSettings, saveSettings } from "./utils/settings";
 import { playSound } from "./utils/sounds";
 import { REGULAR_EVENTS, SPECIAL_EVENTS } from "./schedule";
+
+function getClosestEvent(now: Date) {
+  const nowMs = now.getTime();
+  let closest = { name: "", diff: Infinity, color: "#fff" };
+
+  for (const ev of REGULAR_EVENTS) {
+    let t = parseTime(ev.time, now);
+    if (t.getTime() <= nowMs) { t = new Date(t); t.setDate(t.getDate() + 1); }
+    const diff = t.getTime() - nowMs;
+    if (diff < closest.diff) {
+      closest = { name: ev.name, diff, color: ev.color };
+    }
+  }
+
+  for (const ev of SPECIAL_EVENTS) {
+    const state = isSpecialActive(ev, now);
+    if (state.active) continue; 
+    if (ev.timeRange) {
+      const startT = parseTime(ev.timeRange.start, now);
+      let sTarget = startT.getTime() <= nowMs ? new Date(startT.getTime() + 86400000) : startT;
+      
+      let dayOk = true;
+      const today = now.getDay();
+      if (ev.days && !ev.days.includes(today)) dayOk = false;
+      if (ev.subEvents && !ev.subEvents.some(s => s.days.includes(today))) dayOk = false;
+      
+      if (dayOk) {
+        const diff = sTarget.getTime() - nowMs;
+        if (diff < closest.diff && diff > 0) {
+          closest = { name: ev.name, diff, color: ev.color };
+        }
+      }
+    }
+  }
+  return closest;
+}
 
 export default function App() {
   const [currentTime, setCurrentTime] = useState(getMoscowTime());
@@ -18,13 +55,11 @@ export default function App() {
   const [toast, setToast] = useState<{ title: string; message: string } | null>(null);
   const sentRef = useRef<Set<string>>(new Set());
 
-  // Обновление времени
   useEffect(() => {
     const id = setInterval(() => setCurrentTime(getMoscowTime()), 1000);
     return () => clearInterval(id);
   }, []);
 
-  // Разрешение на уведомления ОС
   useEffect(() => {
     import("@tauri-apps/plugin-notification").then(({ isPermissionGranted, requestPermission }) => {
       isPermissionGranted().then(granted => {
@@ -33,14 +68,12 @@ export default function App() {
     });
   }, []);
 
-  // ЛОГИКА УВЕДОМЛЕНИЙ
   useEffect(() => {
     const check = async () => {
       const now = getMoscowTime();
       const nowMs = now.getTime();
       const today = now.getDay();
 
-      // 1. Обычные события
       const upcoming = REGULAR_EVENTS.map(ev => {
         let t = parseTime(ev.time, now);
         if (t.getTime() <= nowMs) { t = new Date(t); t.setDate(t.getDate() + 1); }
@@ -60,7 +93,6 @@ export default function App() {
         }
       }
 
-      // 2. Особые события
       SPECIAL_EVENTS.forEach(ev => {
         const cfg = settings[ev.id];
         if (!cfg?.enabled) return;
@@ -107,64 +139,62 @@ export default function App() {
     }).catch(err => console.error("Ошибка загрузки плагина уведомлений:", err));
   }
 
-  // Управление режимом оверлея
   const toggleOverlay = async () => {
     const win = getCurrentWindow();
     if (!isOverlayMode) {
       await win.setAlwaysOnTop(true);
       await win.setDecorations(false);
+      try {
+        await win.setSize(new LogicalSize(300, 80));
+      } catch (e) {
+        console.warn("Resize failed", e);
+      }
       setIsOverlayMode(true);
     } else {
       await win.setAlwaysOnTop(false);
       await win.setDecorations(true);
+      try {
+        await win.setSize(new LogicalSize(380, 650));
+      } catch (e) {
+        console.warn("Resize failed", e);
+      }
       setIsOverlayMode(false);
     }
   };
 
-  // Вычисление ближайшего события для оверлея
-  const upcoming = REGULAR_EVENTS.map(ev => {
-    let t = parseTime(ev.time, currentTime);
-    if (t.getTime() <= currentTime.getTime()) { t = new Date(t); t.setDate(t.getDate() + 1); }
-    return { ev, diff: t.getTime() - currentTime.getTime(), target: t };
-  }).sort((a, b) => a.diff - b.diff)[0];
-
-  const specialState = SPECIAL_EVENTS.map(ev => ({ ev, state: isSpecialActive(ev, currentTime) }))
-    .filter(x => x.state.active || x.state.highlighted)[0];
-
-  const isImminent = upcoming && upcoming.diff <= 15 * 60 * 1000;
-  const overlayOpacity = isOverlayMode ? (isImminent || specialState ? 1 : 0.15) : 1;
-
   const formatTime = (d: Date) => d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
   const formatDate = (d: Date) => d.toLocaleDateString("ru-RU", { weekday: "short", day: "numeric", month: "short" });
 
-  return (
-    <div className={`app ${isOverlayMode ? "overlay-mode" : ""}`} style={{ opacity: overlayOpacity }}>
-      {isOverlayMode && (
+  if (isOverlayMode) {
+    const closest = getClosestEvent(currentTime);
+    const isImminent = closest && closest.diff <= 15 * 60 * 1000;
+    return (
+      <div className="app overlay-widget" style={{ opacity: isImminent ? 1 : 0.15 }}>
         <button className="exit-overlay-btn" onClick={toggleOverlay} title="Выйти из режима оверлея">✕</button>
-      )}
+        {closest && closest.diff < Infinity && (
+          <div className="overlay-event" style={{ borderLeftColor: closest.color }}>
+            <div className="overlay-event-name">{closest.name}</div>
+            <div className="overlay-event-countdown">{formatTimeUntil(closest.diff)}</div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
+  return (
+    <div className="app">
       <div className="topbar">
         <h1>🎮 Расписание</h1>
         <div className="topbar-right">
-          {DEV_TIME_OVERRIDE && <span className="dev-badge">DEV MODE</span>}
           <div className="clock">
             <div className="time">{formatTime(currentTime)}</div>
             <div className="date">{formatDate(currentTime)} · МСК</div>
           </div>
           <button className="icon-btn" onClick={() => setShowSettings(true)} title="Настройки">⚙</button>
           <button className={`icon-btn ${isOverlayMode ? "active" : ""}`} onClick={toggleOverlay} title="Режим оверлея (поверх игры)">
-            {isOverlayMode ? "🖥️" : "👁️"}
+            👁️
           </button>
         </div>
-      </div>
-
-      <div className="dev-controls">
-        <label>Тест времени: </label>
-        <input 
-          type="datetime-local" 
-          onChange={(e) => setDevTime(e.target.value ? new Date(e.target.value) : null)} 
-        />
-        <button className="btn small" onClick={() => setDevTime(null)}>Сброс</button>
       </div>
 
       <div className="section-title">Особые события</div>

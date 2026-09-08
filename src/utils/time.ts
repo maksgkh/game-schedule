@@ -3,18 +3,22 @@ import { REGULAR_EVENTS } from "../schedule";
 
 const MSK_OFFSET = 3 * 60;
 
-// Глобальная переменная для режима разработчика (если null, используется реальное время)
-export let DEV_TIME_OVERRIDE: Date | null = null;
+// Смещение в миллисекундах для режима разработчика
+export let DEV_TIME_OFFSET = 0;
 
 export function setDevTime(date: Date | null) {
-  DEV_TIME_OVERRIDE = date;
+  if (date) {
+    // Вычисляем разницу между выбранным временем и текущим реальным
+    DEV_TIME_OFFSET = date.getTime() - new Date().getTime();
+  } else {
+    DEV_TIME_OFFSET = 0;
+  }
 }
 
 export function getMoscowTime(): Date {
-  if (DEV_TIME_OVERRIDE) return new Date(DEV_TIME_OVERRIDE);
   const now = new Date();
   const utc = now.getTime() + now.getTimezoneOffset() * 60000;
-  return new Date(utc + MSK_OFFSET * 60000);
+  return new Date(utc + MSK_OFFSET * 60000 + DEV_TIME_OFFSET);
 }
 
 export function parseTime(timeStr: string, baseDate: Date): Date {
