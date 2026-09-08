@@ -8,7 +8,7 @@
 
 html, body {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background: transparent;
+  background: #000000; /* ← ЧЁРНЫЙ фон по умолчанию */
   color: #ffffff;
   overflow: hidden;
   margin: 0;
@@ -16,15 +16,11 @@ html, body {
   height: 100%;
 }
 
-.app {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  padding: 12px 16px;
-  background: #000000;
-  transition: opacity 0.4s ease;
+/* В режиме оверлея делаем прозрачным */
+.app.overlay-widget ~ body,
+body.overlay-mode {
+  background: transparent !important;
 }
-
 /* ===== ШАПКА ===== */
 .topbar {
   display: flex;
@@ -650,7 +646,10 @@ html, body {
   gap: 8px;
   flex-wrap: wrap;
 }
-
+/* Класс для body в режиме оверлея */
+body.overlay-active {
+  background: transparent !important;
+}
 input[type="range"] {
   width: 100%;
   accent-color: #ff0000;

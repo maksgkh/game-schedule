@@ -68,18 +68,20 @@ export default function App() {
   // ===== ОВЕРЛЕЙ: вход / выход =====
   const enterOverlay = async () => {
     const win = getCurrentWindow();
+    document.body.classList.add("overlay-active"); // ← добавили
     try { await win.setDecorations(false); } catch (e) { console.warn(e); }
     try { await win.setSize(new LogicalSize(320, 84)); } catch (e) { console.warn(e); }
     if (ui.overlayPos) {
       try { await win.setPosition(new PhysicalPosition(ui.overlayPos.x, ui.overlayPos.y)); } catch (e) { console.warn(e); }
     }
-    try { await win.setAlwaysOnTop(true); } catch (e) { console.warn(e); } // ПОСЛЕДЕМ — иначе Windows сбросит TOPMOST
+    try { await win.setAlwaysOnTop(true); } catch (e) { console.warn(e); }
     try { await win.show(); } catch (e) { console.warn(e); }
     setIsOverlayMode(true);
   };
 
   const exitOverlay = async () => {
     const win = getCurrentWindow();
+    document.body.classList.remove("overlay-active"); // ← добавили
     try { await win.setAlwaysOnTop(false); } catch (e) { console.warn(e); }
     try { await win.setDecorations(true); } catch (e) { console.warn(e); }
     try { await win.setSize(new LogicalSize(380, 650)); } catch (e) { console.warn(e); }
