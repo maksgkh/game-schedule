@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import { Settings, SettingsKey, UiSettings } from "../types";
+import { useState } from "react";
+import { Settings, SettingsKey } from "../types";
 import { playSound, SOUND_OPTIONS } from "../utils/sounds";
-import { setDevTime, exportAll, importAll } from "../utils/settings";
+import { setDevTime } from "../utils/time";          // ← вот это исправлено (было settings)
+import { exportAll, importAll } from "../utils/settings";
 import { enable, disable, isEnabled } from "@tauri-apps/plugin-autostart";
 
 interface Props {

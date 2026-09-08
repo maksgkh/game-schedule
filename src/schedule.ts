@@ -11,29 +11,29 @@ function generateContraband(): RegularEvent[] {
       name: "Контрабанда",
       time: timeStr,
       color: "#ff6b6b",
-      category: "contraband" as const, // <-- ИСПРАВЛЕНО: добавлено as const
+      category: "contraband",
     });
   }
   return events;
 }
 
 export const REGULAR_EVENTS: RegularEvent[] = [
-  { id: "d1", name: "Дроп", time: "00:00", color: "#7c5cfc", category: "drop" as const },
+  { id: "d1", name: "Дроп", time: "00:00", color: "#7c5cfc", category: "drop" },
   { id: "t1", name: "Тайники", time: "02:00", color: "#4a90e2", category: "stash" },
-  { id: "d2", name: "Дроп", time: "04:00", color: "#7c5cfc", category: "drop" as const },
+  { id: "d2", name: "Дроп", time: "04:00", color: "#7c5cfc", category: "drop" },
   { id: "t2", name: "Тайники", time: "06:00", color: "#4a90e2", category: "stash" },
-  { id: "d3", name: "Дроп", time: "08:00", color: "#7c5cfc", category: "drop" as const },
+  { id: "d3", name: "Дроп", time: "08:00", color: "#7c5cfc", category: "drop" },
   { id: "t3", name: "Тайники", time: "10:00", color: "#4a90e2", category: "stash" },
-  { id: "dl1", name: "Дилеры", time: "10:45", color: "#e04060", category: "dealer" as const },
-  { id: "d4", name: "Дроп", time: "12:00", color: "#7c5cfc", category: "drop" as const },
+  { id: "dl1", name: "Дилеры", time: "10:45", color: "#e04060", category: "dealer" },
+  { id: "d4", name: "Дроп", time: "12:00", color: "#7c5cfc", category: "drop" },
   { id: "t4", name: "Тайники", time: "14:00", color: "#4a90e2", category: "stash" },
-  { id: "c1", name: "Цеха", time: "14:45", color: "#f5a623", category: "workshop" as const },
-  { id: "d5", name: "Дроп", time: "16:00", color: "#7c5cfc", category: "drop" as const },
+  { id: "c1", name: "Цеха", time: "14:45", color: "#f5a623", category: "workshop" },
+  { id: "d5", name: "Дроп", time: "16:00", color: "#7c5cfc", category: "drop" },
   { id: "t5", name: "Тайники", time: "18:00", color: "#4a90e2", category: "stash" },
-  { id: "dl2", name: "Дилеры", time: "18:45", color: "#e04060", category: "dealer" as const },
-  { id: "d6", name: "Дроп", time: "20:00", color: "#7c5cfc", category: "drop" as const },
+  { id: "dl2", name: "Дилеры", time: "18:45", color: "#e04060", category: "dealer" },
+  { id: "d6", name: "Дроп", time: "20:00", color: "#7c5cfc", category: "drop" },
   { id: "t6", name: "Тайники", time: "22:00", color: "#4a90e2", category: "stash" },
-  { id: "c2", name: "Цеха", time: "22:45", color: "#f5a623", category: "workshop" as const },
+  { id: "c2", name: "Цеха", time: "22:45", color: "#f5a623", category: "workshop" },
   ...generateContraband(),
 ].sort((a, b) => a.time.localeCompare(b.time));
 
