@@ -7,13 +7,13 @@ export interface NotificationConfig {
 }
 
 export interface OverlayConfig {
-  enabled: boolean;
   showInOverlay: boolean;
   minutesBeforeShow: number;
 }
 
 export interface Settings {
   drop: NotificationConfig & OverlayConfig;
+  stash: NotificationConfig & OverlayConfig;
   workshop: NotificationConfig & OverlayConfig;
   dealer: NotificationConfig & OverlayConfig;
   contraband: NotificationConfig & OverlayConfig;
@@ -24,12 +24,20 @@ export interface Settings {
 
 export type SettingsKey = keyof Settings;
 
+export interface UiSettings {
+  hotkey: string;
+  overlayOpacity: number;   // 0.2 .. 1
+  autoHide: boolean;        // "Скрывать автоматически"
+  imminentMinutes: number;  // за сколько минут показывать
+  overlayPos: { x: number; y: number } | null;
+}
+
 export interface RegularEvent {
   id: string;
   name: string;
   time: string;
   color: string;
-  category: "drop" | "workshop" | "dealer" | "contraband";
+  category: "drop" | "stash" | "workshop" | "dealer" | "contraband";
 }
 
 export interface SpecialEvent {
